@@ -4,82 +4,84 @@ const swaggerUi = require("swagger-ui-express");
 const userDocs = {
     openapi: "3.0.0",
     info: {
-        title: "User API",
+        title: "User API (Basic Auth)",
         version: "1.0.0",
-        description: "Manage users with role-based permissions",
+        description: "User management with HTTP Basic Authentication",
     },
     servers: [{ url: "/api/users" }],
     components: {
         securitySchemes: {
-            BasicAuth: {
+            basicAuth: {
                 type: "http",
                 scheme: "basic",
-                description: "Use your **email** as the Username field and your password as the Password field when authorizing.",
             },
         },
         schemas: {
-            User: {
+            UserRegister: {
                 type: "object",
+                required: ["name", "email", "password"],
                 properties: {
-                    name: { type: "string" },
-                    email: { type: "string" },
-                    password: { type: "string" },
-                    role: { type: "string", enum: ["user", "admin"] },
+                    name: { type: "string", example: "John Doe" },
+                    email: { type: "string", example: "john@example.com" },
+                    password: { type: "string", example: "securePass123" },
+                    role: { type: "string", enum: ["user", "admin"], example: "user" },
                 },
             },
         },
     },
     paths: {
-        "/": {
+        "/register": {
             post: {
-                summary: "Create a new user (anybody)",
+                summary: "Register a new user",
+                tags: ["Users"],
                 requestBody: {
                     required: true,
-                    content: { "application/json": { schema: { $ref: "#/components/schemas/User" } } },
+                    content: {
+                        "application/json": {
+                            schema: { $ref: "#/components/schemas/UserRegister" },
+                        },
+                    },
                 },
-                responses: {
-                    201: { description: "User created successfully" },
-                    400: { description: "User already exists" },
-                },
+                responses: { 201: { description: "User registered" } },
             },
+        },
+        "/me": {
+            get: {
+                summary: "Get current user profile",
+                tags: ["Users"],
+                security: [{ basicAuth: [] }],
+                responses: { 200: { description: "Current user profile" } },
+            },
+        },
+        "/": {
             get: {
                 summary: "Get all users (admin only)",
-                security: [{ BasicAuth: [] }],
-                responses: {
-                    200: { description: "List of users" },
-                    403: { description: "Forbidden" },
-                },
+                tags: ["Users"],
+                security: [{ basicAuth: [] }],
+                responses: { 200: { description: "List of users" } },
             },
         },
         "/{id}": {
             get: {
-                summary: "Get user by ID (anybody)",
+                summary: "Get user by ID (admin only)",
+                tags: ["Users"],
                 parameters: [{ name: "id", in: "path", required: true, schema: { type: "string" } }],
-                responses: {
-                    200: { description: "User object" },
-                    404: { description: "Not found" },
-                },
+                security: [{ basicAuth: [] }],
+                responses: { 200: { description: "User object" }, 404: { description: "Not found" } },
             },
             put: {
-                summary: "Update user by ID (anybody updates their own data)",
+                summary: "Update user (self or admin)",
+                tags: ["Users"],
                 parameters: [{ name: "id", in: "path", required: true, schema: { type: "string" } }],
-                requestBody: {
-                    content: { "application/json": { schema: { $ref: "#/components/schemas/User" } } },
-                },
-                responses: {
-                    200: { description: "User updated successfully" },
-                    404: { description: "User not found" },
-                },
+                security: [{ basicAuth: [] }],
+                responses: { 200: { description: "Updated user" } },
             },
             delete: {
-                summary: "Delete user by ID (admin only)",
+                summary: "Delete user (admin only)",
+                tags: ["Users"],
                 parameters: [{ name: "id", in: "path", required: true, schema: { type: "string" } }],
-                security: [{ BasicAuth: [] }],
-                responses: {
-                    200: { description: "User deleted successfully" },
-                    403: { description: "Forbidden" },
-                    404: { description: "User not found" },
-                },
+                security: [{ basicAuth: [] }],
+                responses: { 200: { description: "Deleted successfully" } },
             },
         },
     },
@@ -87,4 +89,5 @@ const userDocs = {
 
 const router = express.Router();
 router.use("/", swaggerUi.serve, swaggerUi.setup(userDocs));
+
 module.exports = router;

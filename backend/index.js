@@ -31,6 +31,7 @@ app.use("/api-docs/users", userSwagger);
 app.use("/api-docs/plans", planSwagger);
 app.use("/api/subscriptions", subscriptionRoutes);
 app.use("/api-docs/subscriptions", subscriptionSwagger);
+app.use("/api/offers", require('./routes/offers.routes'));
 
 
 // Root
