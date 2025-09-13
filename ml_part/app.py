@@ -4,9 +4,12 @@ import numpy as np
 from sklearn.cluster import KMeans
 from sklearn.preprocessing import StandardScaler
 import os
+from flask_cors import CORS
+
 
 app = Flask(__name__)
 
+CORS(app)
 # Path to Excel file
 EXCEL_PATH = os.path.join(os.path.dirname(__file__), 'data', 'SubscriptionUseCase_Dataset.xlsx')
 
