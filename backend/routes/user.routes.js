@@ -11,5 +11,5 @@ router.get("/:id", userController.getUserById);         // Get by ID
 // Admin-only routes
 router.get("/", verifyAdminAuth, userController.getAllUsers);    // Get all users
 router.delete("/:id", verifyAdminAuth, userController.deleteUser); // Delete user
-
+router.post("/login", userController.loginUser);      // User login
 module.exports = router;
