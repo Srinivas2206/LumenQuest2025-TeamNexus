@@ -6,6 +6,7 @@ from sklearn.preprocessing import StandardScaler
 import os
 from flask_cors import CORS
 
+
 app = Flask(__name__)
 
 CORS(app)
